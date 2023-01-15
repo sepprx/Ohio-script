@@ -1,0 +1,533 @@
+local GuiLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Rayfield/main/source'))()
+local folder = Instance.new("Folder",game.ReplicatedStorage)
+folder.Name = "OhioObjects"
+local locations = {
+    c4_loc = CFrame.new(661.083374, 6.26843691, -675.528076, 2.00990483258, 2.15060808e-07, 0.999950945, -3.57248919e-09, 1, -2.15106752e-07, -0.999950945, -5.70291014e-09, -0.00990483258),
+    light_vest_loc = CFrame.new(660.800659, 6.24392128, -683.886047, 3.750694633, 0.000417905598, 0.66064924, 6.6095432e-05, 0.999999762, -0.000707671978, -0.660649359, 0.000574911421, 0.750694394),
+    smoke_loc = CFrame.new(660.91095, 6.37957335, -699.631653, 3.808261096, 9.12727174e-08, 0.588824272, -8.00745354e-08, 1, -4.50925484e-08, -0.588824272, -1.07032774e-08, 0.808261096),
+    frag_loc = CFrame.new(659.966064, 6.38352442, -706.436951, 3.993325889, 2.53041017e-05, 0.115341574, 1.0756753e-05, 0.99999994, -0.000312021584, -0.115341581, 0.000311179814, 0.99332583),
+    lockpick_loc = CFrame.new(660.539856, 6.29927778, -716.083618, 3.776703894, 3.23668203e-08, -0.629865944, -6.00854833e-08, 1, -2.27061108e-08, 0.629865944, 5.54817206e-08, 0.776703894),
+    glock_loc = CFrame.new(670.072693, 6.24341631, -705.681396, 0.917188764, 4.66066297e-08, 0.398452938, -1.85016304e-08, 1, -7.43805302e-08, -0.398452938, 6.08489614e-08, 0.917188764),
+    m1991_loc = CFrame.new(674.513977, 6.2398324, -704.118164, 0.453643441, -0.0010433821, 0.891182661, -0.000259272114, 0.999999106, 0.00130276126, -0.891183257, -0.000822047878, 0.453642756),
+    ak_47_loc = CFrame.new(671.548218, 6.31683636, -719.634338, 3.119399413, 5.86740352e-05, 0.99284631, -2.69009888e-06, 1, -5.87732866e-05, -0.99284631, 4.34664116e-06, 0.119399413),
+    ar_15_loc = CFrame.new(680.879211, 6.24340868, -718.540833, 3.102145277, -0.00074900192, -0.994769216, 4.08210872e-05, 0.999999702, -0.000748748542, 0.994769514, 3.58735706e-05, 0.102145284),
+    spiked_baseball_bat_loc = CFrame.new(690.319702, 6.26579952, -719.011536, 2.247219056, -0.000557749008, -0.968959451, 3.08154595e-05, 0.999999821, -0.000583478599, 0.96895963, -0.000174105953, -0.247218996),
+    mossberg_loc = CFrame.new(681.468872, 6.2388587, -704.764771, 0.893163681, 0.000150624022, -0.449731767, 8.98900107e-05, 0.999999881, 0.000513440464, 0.449731767, -0.000499012764, 0.893163502),
+    uzi_loc = CFrame.new(685.587463, 6.24341631, -693.095398, 0.588538647, 6.6678183e-09, -0.808469057, -2.41036915e-08, 1, -9.2992245e-09, 0.808469057, 2.49600411e-08, 0.588538647),
+}
+local signalcreator = require(game:GetService("ReplicatedStorage")["devv-framework"].datum).load
+local FireRemoteEvent = signalcreator("Signal")
+
+-- FireRemoteEvent.FireServer("event name",args)
+
+
+
+local Window = GuiLib:CreateWindow({Name = "Ohio"})
+local Player_Tab = Window:CreateTab("Player")
+local Misc_Tab = Window:CreateTab("Misc")
+local trolling_tab = Window:CreateTab("Trolling")
+local TP_tab = Window:CreateTab("TP")
+local Weapons_Tab = Window:CreateTab("Weapons")
+local Esp_Tab = Window:CreateTab("Esp")
+local VelSpeed = false
+local SpeedAmount = 5
+local function tp_to(cf)
+    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = cf
+end
+
+local function load_Up()
+    game.DescendantAdded:Connect(function(child)
+        if child:IsA("ProximityPrompt") then
+            wait(0.3)
+            child.HoldDuration = 0
+        end
+    end)
+end
+Player_Tab:CreateSection("Health")
+local godmode = false
+Player_Tab:CreateToggle({
+    Name = "Godmode [Testing]",
+    Callback = function()
+        if godmode == false then
+            godmode = true
+        else
+            godmode = false
+        end
+    end
+})
+
+game:GetService("RunService").Heartbeat:Connect(function()
+    if godmode == true then
+        game.Players.LocalPlayer.Character.Humanoid.Health = 99
+    end
+end)
+
+
+Player_Tab:CreateSection("Other")
+Player_Tab:CreateToggle({
+    Name = "Speed changer (CFrame)",
+    Callback = function()
+        if VelSpeed == true then
+            VelSpeed = false
+        else
+            VelSpeed = true
+        end
+    end
+})
+
+Player_Tab:CreateSlider{
+    Name = "Speed amount",
+    Range = {0, 100},
+    Increment = 1,
+    Suffix = "Speed",
+    CurrentValue = 5,
+    Callback = function(value)
+        SpeedAmount = value
+    end
+}
+local oldposbuyweapon = nil
+local KillAuraDamage = false
+local KillAuraInstant = false
+local StompAura = false
+local ATMAura = false
+local ATMauradistant = 5
+local killauraDistant = 5
+local StomptAuraDistant = 5
+Weapons_Tab:CreateSection("Kill aura")
+Weapons_Tab:CreateToggle({
+    Name = "Kill aura Instant (Equip fist)",
+    Callback = function()
+        if KillAuraInstant == false then
+            KillAuraInstant = true
+        else
+            KillAuraInstant = false
+        end
+    end
+})
+
+Weapons_Tab:CreateToggle({
+    Name = "Kill aura Damage (Equip fist)",
+    Callback = function()
+        if KillAuraDamage == false then
+            KillAuraDamage = true
+        else
+            KillAuraDamage = false
+        end
+    end
+})
+
+Weapons_Tab:CreateToggle({
+    Name = "ATM hit aura (equip fist)",
+    Callback = function()
+        if ATMAura == false then
+            ATMAura = true
+        else
+            ATMAura = false
+        end
+    end
+})
+
+Weapons_Tab:CreateToggle({
+    Name = "Stomp aura",
+    Callback = function()
+        if StompAura == false then
+            StompAura = true
+        else
+            StompAura = false
+        end
+    end
+})
+
+game:GetService("RunService").Heartbeat:Connect(function()
+    if ATMAura == true then
+        for i,v in pairs(game:GetService("Workspace").Game.Props.ATM:GetChildren()) do
+            if v:FindFirstChild("Slot") then
+                if (v.Slot.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < ATMauradistant then
+                    if v:GetAttribute("guid") then
+                        FireRemoteEvent.FireServer("meleeHit","prop",{["meleeType"] = "punch",["guid"] = v:GetAttribute("guid")})
+                    end
+                end
+            end
+        end
+    end
+end)
+
+game:GetService("RunService").Heartbeat:Connect(function()
+    if StompAura == true then
+        for i,v in pairs(game.Players:GetChildren()) do
+            if v ~= game.Players.LocalPlayer then
+                if v.Character then
+                    if v.Character:FindFirstChild("HumanoidRootPart") then
+                        if (v.Character.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < StomptAuraDistant then 
+                            FireRemoteEvent.FireServer("stompPlayer",v)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+game:GetService("RunService").Heartbeat:Connect(function()
+    if KillAuraInstant == true then
+        for i,v in pairs(game.Players:GetChildren()) do
+            if v ~= game.Players.LocalPlayer then
+                if v.Character then
+                    if v.Character:FindFirstChild("HumanoidRootPart") then
+                        if (v.Character.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < killauraDistant then
+                            FireRemoteEvent.FireServer("meleeHit","player",{["meleeType"] = "megapunch",["hitPlayerId"] = v.UserId})
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+game:GetService("RunService").Heartbeat:Connect(function()
+    if KillAuraDamage == true then
+        for i,v in pairs(game.Players:GetChildren()) do
+            if v ~= game.Players.LocalPlayer then
+                if v.Character then
+                    if v.Character:FindFirstChild("HumanoidRootPart") then
+                        if (v.Character.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <  killauraDistant  then 
+                            FireRemoteEvent.FireServer("meleeHit","player",{["meleeType"] = "punch",["hitPlayerId"] = v.UserId})
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+Weapons_Tab:CreateSlider({
+    Name = "Kill aura distance (studs)",
+    Range = {2, 15},
+    Increment = 1,
+    Suffix = "Distance",
+    CurrentValue = 5,
+    Callback = function(num)
+        killauraDistant = num
+    end
+})
+
+Weapons_Tab:CreateSlider({
+    Name = "Stomp aura distance (studs)",
+    Range = {2, 15},
+    Increment = 1,
+    Suffix = "Distance",
+    CurrentValue = 5,
+    Callback = function(num)
+        StomptAuraDistant = num
+    end
+})
+
+Weapons_Tab:CreateSlider({
+    Name = "ATM aura distance (studs)",
+    Range = {2, 15},
+    Increment = 1,
+    Suffix = "Distance",
+    CurrentValue = 5,
+    Callback = function(num)
+        ATMauradistant = num
+    end
+})
+Weapons_Tab:CreateSection("Buy Loot")
+
+Weapons_Tab:CreateButton({
+    Name = "Buy Knife (melee) (50)",
+    Callback = function()
+        FireRemoteEvent.FireServer("attemptPurchase","Knife")
+    end
+})
+
+Weapons_Tab:CreateButton({
+    Name = "Buy Light vest (Protection) (100)",
+    Callback = function()
+        FireRemoteEvent.FireServer("attemptPurchase","Light Vest")
+    end
+})
+
+Weapons_Tab:CreateButton({
+    Name = "Buy Lockpick (N/A) (100)",
+    Callback = function()
+        FireRemoteEvent.FireServer("attemptPurchase","Lockpick")
+    end
+})
+
+Weapons_Tab:CreateButton({
+    Name = "Buy C4 (Explosive) (500)",
+    Callback = function()
+        FireRemoteEvent.FireServer("attemptPurchase","C4")
+    end
+})
+
+Weapons_Tab:CreateButton({
+    Name = "Buy M1911 (Pistol) (200)",
+    Callback = function()
+        FireRemoteEvent.FireServer("attemptPurchase","M1911")
+    end
+})
+
+Weapons_Tab:CreateButton({
+    Name = "Buy Glock (Pistol) (300)",
+    Callback = function()
+        FireRemoteEvent.FireServer("attemptPurchase","Glock")
+    end
+})
+
+Weapons_Tab:CreateButton({
+    Name = "Buy Mossberg (Shotgun) (1,200)",
+    Callback = function()
+        FireRemoteEvent.FireServer("attemptPurchase","Mossberg")
+    end
+})
+
+Weapons_Tab:CreateButton({
+    Name = "Buy Uzi (smg) (900)",
+    Callback = function()
+        FireRemoteEvent.FireServer("attemptPurchase","Uzi")
+    end
+})
+
+Weapons_Tab:CreateButton({
+    Name = "Buy AK-47 (assault-rifle) (3000)",
+    Callback = function()
+        FireRemoteEvent.FireServer("attemptPurchase","AK-47")
+    end
+})
+
+Weapons_Tab:CreateButton({
+    Name = "Buy AR-15 (assault-rifle) (2700)",
+    Callback = function()
+        FireRemoteEvent.FireServer("attemptPurchase","AR-15")
+    end
+})
+
+Weapons_Tab:CreateButton({
+    Name = "Buy RPG (explosive) (10,000)",
+    Callback = function()
+        FireRemoteEvent.FireServer("attemptPurchase","RPG")
+    end
+})
+
+Weapons_Tab:CreateButton({
+    Name = "Buy smoke (grenade) (100)",
+    Callback = function()
+        FireRemoteEvent.FireServer("attemptPurchase","Smoke")
+    end
+})
+
+Weapons_Tab:CreateButton({
+    Name = "Buy frag (grenade) (200)",
+    Callback = function()
+        FireRemoteEvent.FireServer("attemptPurchase","Frag")
+    end
+})
+
+local ClickToUnlock = false
+local ClickToUnlock = false
+ Player_Tab:CreateToggle({
+    Name = "Click to unlock/lock doors",
+    Callback = function()
+        if ClickToUnlock == false then
+            ClickToUnlock = true
+        else
+            ClickToUnlock = false
+        end
+    end
+})
+
+game:GetService("RunService").Heartbeat:Connect(function()
+    if VelSpeed == true then
+        if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+            if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid").MoveDirection ~= Vector3.new(0,0,0) then
+                if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    local to_add = game.Players.LocalPlayer.Character.Humanoid.MoveDirection/15
+                    game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart").CFrame + to_add * SpeedAmount
+                end
+            end
+        end
+    end
+end)
+
+Player_Tab:CreateButton({
+    Name = "Tp forward",
+    Callback = function()
+        local root = game.Players.LocalPlayer.Character.HumanoidRootPart
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = root.CFrame + root.CFrame.LookVector * 4
+    end
+})
+
+
+game.Players.LocalPlayer:GetMouse().Button1Down:Connect(function()
+    if ClickToUnlock == true then
+        if game.Players.LocalPlayer:GetMouse().Target.Name == "Door" then
+            if game.Players.LocalPlayer:GetMouse().Target.Parent.Name == "DoorMain" then
+                local oldpos = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+                local doormainloc = game.Players.LocalPlayer:GetMouse().Target.Parent
+                
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(doormainloc.Door.Position + doormainloc.Door.CFrame.LookVector * 1)
+                
+                wait(0.4)
+                
+                fireclickdetector(doormainloc.Lock.ClickDetector)
+                
+                wait(0.3)
+                
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = oldpos
+            end
+        end
+    end
+end)
+local clickto_delete = false
+Misc_Tab:CreateToggle({
+    Name = "Click to delete",
+    Callback = function()
+        if clickto_delete == false then
+            clickto_delete = true
+        else
+            clickto_delete = false
+        end
+    end
+})
+
+game.Players.LocalPlayer:GetMouse().Button1Down:Connect(function()
+    if clickto_delete == true then
+        if game.Players.LocalPlayer:GetMouse().Target ~= nil then
+            game.Players.LocalPlayer:GetMouse().Target.Parent = folder
+        end
+    end
+end)
+
+local admin_menu = false
+Misc_Tab:CreateToggle({
+    Name = "Admin command bar [Testing]",
+    Callback = function()
+        if admin_menu == false then
+            admin_menu = true
+        else
+            admin_menu = false
+        end
+    end
+})
+
+Misc_Tab:CreateButton({
+    Name = "Undo deleted objects",
+    Callback = function()
+        for i,v in pairs(folder:GetChildren()) do
+            v.Parent = game.Workspace
+        end
+    end
+})
+
+game:GetService("RunService").Heartbeat:Connect(function()
+    if admin_menu == true then
+        game:GetService("Players").LocalPlayer.PlayerGui.Cmdr.Frame.Visible = true
+    else
+        game:GetService("Players").LocalPlayer.PlayerGui.Cmdr.Frame.Visible = false
+    end
+end)
+
+
+Misc_Tab:CreateButton({
+    Name = "No proximity wait (press once)",
+    Callback = function()
+        for i,v in pairs(game:GetDescendants()) do
+            if v:IsA("ProximityPrompt") then
+                v.HoldDuration = 0
+            end
+        end
+        load_Up()
+        game.DescendantAdded:Connect(function(child)
+            if child:IsA("ProximityPrompt") then
+                child.HoldDuration = 0
+            end
+        end)
+    end
+})
+
+Esp_Tab:CreateButton({
+    Name = "Load unamed esp",
+    Callback = function()
+        pcall(function() loadstring(game:HttpGet('https://raw.githubusercontent.com/ic3w0lf22/Unnamed-ESP/master/UnnamedESP.lua'))() end)
+    end
+})
+
+local SelectedPlayer = nil
+local LoopFollowSelectedPlayer = false
+
+trolling_tab:CreateButton({
+    Name = "Select player (click on target with mouse to select)",
+    Callback = function()
+        GuiLib:Notify({
+            Title = "Notify",
+            Content = "Please click on ur target",
+            Image = 4483345998
+        })
+        game.Players.LocalPlayer:GetMouse().Button1Down:Wait()
+
+        if game.Players.LocalPlayer:GetMouse().Target.Parent:FindFirstChild("Humanoid") then
+            local target = game.Players:FindFirstChild(game.Players.LocalPlayer:GetMouse().Target.Parent.Name)
+            GuiLib:Notify({
+                Title = "Notify",
+                Content = ("Selected: "..game.Players.LocalPlayer:GetMouse().Target.Parent.Name),
+                Image = 4483345998
+            })
+            SelectedPlayer = target
+        else
+            GuiLib:Notify({
+                Title = "Notify",
+                Content = ("Thats not an player"),
+                Image = 4483345998
+            })
+        end
+    end
+})
+
+trolling_tab:CreateToggle({
+    Name = "Loop follow selected player",
+    Callback = function()
+        if LoopFollowSelectedPlayer == false then
+            LoopFollowSelectedPlayer = true
+        else
+            LoopFollowSelectedPlayer = false
+        end
+    end
+})
+
+local followdistance = 1
+
+trolling_tab:CreateSlider({
+    Name = "Follow player distance",
+    Range = {1, 10},
+    Increment = 1,
+    Suffix = "Distance",
+    CurrentValue = 1,
+    Callback = function(Value)
+        followdistance = Value
+    end,
+ })
+
+game:GetService("RunService").Heartbeat:Connect(function()
+    if LoopFollowSelectedPlayer == true then
+        if SelectedPlayer ~= nil then
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(SelectedPlayer.Character.HumanoidRootPart.Position + SelectedPlayer.Character.HumanoidRootPart.CFrame.LookVector *-followdistance,SelectedPlayer.Character.HumanoidRootPart.Position)
+        end
+    end
+end)
+
+TP_tab:CreateButton({
+    Name = "Tp forward",
+    Callback = function()
+        local root = game.Players.LocalPlayer.Character.HumanoidRootPart
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = root.CFrame + root.CFrame.LookVector * 4
+    end
+})
+
+TP_tab:CreateButton({
+    Name = "Bank vault",
+    Callback = function()
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(1055.68982, 8.97563553, -343.365723, 0.369691789, -1.0905125e-07, 0.929154456, -6.08019546e-09, 1, 1.19785298e-07, -0.929154456, -4.99330817e-08, 0.369691789)
+    end
+})
